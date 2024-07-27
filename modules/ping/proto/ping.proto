@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "github.com/lazyIoad/salo/modules/ping/proto";
+
+package builtins.ping;
+
+service Pinger {
+        rpc Ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+        string data = 1;
+}
+
+message PingResponse {
+        string data = 1;
+}
