@@ -3,8 +3,8 @@ package ping
 import (
 	"context"
 
-	"github.com/lazyIoad/salo/modules"
-	pb "github.com/lazyIoad/salo/modules/ping/proto"
+	"github.com/lazyIoad/salo/internal/modules"
+	pb "github.com/lazyIoad/salo/internal/modules/ping/proto"
 	"google.golang.org/grpc"
 )
 

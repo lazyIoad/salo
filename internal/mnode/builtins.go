@@ -1,8 +1,8 @@
-package worker
+package mnode
 
 import (
-	"github.com/lazyIoad/salo/modules"
-	"github.com/lazyIoad/salo/modules/ping"
+	"github.com/lazyIoad/salo/internal/modules"
+	"github.com/lazyIoad/salo/internal/modules/ping"
 	"google.golang.org/grpc"
 )
 
