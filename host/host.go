@@ -8,11 +8,11 @@ type Host struct {
 
 // Creates a slice of hosts for the given addresses. The same config
 // will be used for all hosts.
-func NewFromSlice(config *Config, addrs ...string) []Host {
-	var hosts []Host
+func NewFromSlice(config *Config, addrs ...string) []*Host {
+	var hosts []*Host
 
 	for _, a := range addrs {
-		host := Host{
+		host := &Host{
 			Address: a,
 			Port:    22,
 			Config:  config,

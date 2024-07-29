@@ -19,7 +19,7 @@ var (
 
 type Config struct {
 	// Path to create a unix socket for the API. If left empty, will default to
-	// /tmp/salo/saloserver.sock
+	// /tmp/salo/server.sock
 	SocketPath string
 	// SSH config to control how the SSH tunnel to the host will be established.
 	// If left empty, will default to using the SSH agent and connect to the
@@ -50,7 +50,7 @@ func buildConfig(sshConfig *ssh.ClientConfig) (*Config, error) {
 	sshConfig.User = user
 
 	return &Config{
-		SocketPath: "/tmp/salo/saloserver.sock",
+		SocketPath: "/tmp/salo/server.sock",
 		SshConfig:  sshConfig,
 	}, nil
 }
