@@ -1,29 +1,25 @@
 package host
 
-import (
-	"fmt"
-	"net/netip"
-)
-
 type Host struct {
-	addr netip.AddrPort
+	Address string
+	Port    int
+	Config  *Config
 }
 
-func NewFromSlice(addrs ...string) ([]Host, error) {
+// Creates a slice of hosts for the given addresses. The same config
+// will be used for all hosts.
+func NewFromSlice(config *Config, addrs ...string) []Host {
 	var hosts []Host
 
 	for _, a := range addrs {
-		addr, err := netip.ParseAddr(a)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse IP: %w", err)
-		}
-
 		host := Host{
-			addr: netip.AddrPortFrom(addr, 22),
+			Address: a,
+			Port:    22,
+			Config:  config,
 		}
 
 		hosts = append(hosts, host)
 	}
 
-	return hosts, nil
+	return hosts
 }
