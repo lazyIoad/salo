@@ -1,23 +1,22 @@
 // Inspired heavily by github.com/johnsiilver/serveonssh
-package cnode
+package salo
 
 import (
 	"context"
 	"fmt"
 	"net"
 
-	"github.com/lazyIoad/salo/host"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type SshProxiedGrpcConn struct {
+type sshProxiedGrpcConn struct {
 	proxy *sshProxy
 	*grpc.ClientConn
 }
 
-func NewSshProxiedGrpcConn(h *host.Host) (*SshProxiedGrpcConn, error) {
+func newSshProxiedGrpcConn(h *Host) (*sshProxiedGrpcConn, error) {
 	proxy, err := newSshProxy(h)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SSH proxy: %w", err)
@@ -37,13 +36,13 @@ func NewSshProxiedGrpcConn(h *host.Host) (*SshProxiedGrpcConn, error) {
 		return nil, fmt.Errorf("failed to create gRPC client: %w", err)
 	}
 
-	return &SshProxiedGrpcConn{
+	return &sshProxiedGrpcConn{
 		proxy,
 		conn,
 	}, nil
 }
 
-func (s *SshProxiedGrpcConn) Close() error {
+func (s *sshProxiedGrpcConn) close() error {
 	return s.proxy.sshClient.Close()
 }
 
@@ -54,7 +53,7 @@ type sshProxy struct {
 	dialer    dialer
 }
 
-func newSshProxy(h *host.Host) (*sshProxy, error) {
+func newSshProxy(h *Host) (*sshProxy, error) {
 	addr := fmt.Sprintf("%s:%d", h.Address, h.Port)
 	client, err := ssh.Dial("tcp", addr, h.Config.SshConfig)
 	if err != nil {

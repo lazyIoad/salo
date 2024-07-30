@@ -1,8 +1,11 @@
 package task
 
-import "context"
+import (
+	"context"
+
+	"google.golang.org/grpc"
+)
 
 type Tasker interface {
-	Run(context.Context) error
-	Plan() string
+	Run(context.Context, grpc.ClientConnInterface) error
 }

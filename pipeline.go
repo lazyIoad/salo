@@ -1,10 +1,8 @@
-package pipeline
+package salo
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/lazyIoad/salo/host"
 	taskif "github.com/lazyIoad/salo/task"
 )
 
@@ -18,7 +16,7 @@ type Pipeline struct {
 	tasks []task
 }
 
-func New(name string) *Pipeline {
+func NewPipeline(name string) *Pipeline {
 	return &Pipeline{
 		name: name,
 	}
@@ -29,12 +27,6 @@ func (p *Pipeline) AddTask(name string, t taskif.Tasker) *Pipeline {
 	return p
 }
 
-func (p *Pipeline) Run(ctx context.Context, hosts []host.Host) error {
-	fmt.Printf("PIPELINE [%s] starting...", p.name)
-	for i, t := range p.tasks {
-		fmt.Printf("TASK %d/%d [%s] starting...", i, len(p.tasks), t.name)
-		t.impl.Run(ctx)
-	}
-
-	return nil
+func (p *Pipeline) Execute(ctx context.Context, hosts []*Host) error {
+	return executePipeline(ctx, p, hosts)
 }
