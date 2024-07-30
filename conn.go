@@ -9,11 +9,16 @@ import (
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/resolver"
 )
+
+func init() {
+	resolver.SetDefaultScheme("passthrough")
+}
 
 type sshProxiedGrpcConn struct {
 	proxy *sshProxy
-	*grpc.ClientConn
+	conn  *grpc.ClientConn
 }
 
 func newSshProxiedGrpcConn(h *Host) (*sshProxiedGrpcConn, error) {

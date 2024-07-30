@@ -50,11 +50,11 @@ func newHostExecutor(h *Host) (*hostExecutor, error) {
 
 func (h *hostExecutor) runPipeline(ctx context.Context, p *Pipeline) error {
 	// TODO: cannot use normal logging
-	fmt.Printf("[%s] PIPELINE (%s) starting...", h.host.Address, p.name)
+	fmt.Printf("[%s] PIPELINE (%s) starting...\n", h.host.Address, p.name)
 
 	for i, t := range p.tasks {
-		fmt.Printf("[%s] TASK [%d/%d: %s] starting...", h.host.Address, i, len(p.tasks), t.name)
-		err := t.impl.Run(ctx, h.conn)
+		fmt.Printf("[%s] TASK (%d/%d: %s) starting...\n", h.host.Address, i, len(p.tasks), t.name)
+		err := t.impl.Run(ctx, h.conn.conn)
 		if err != nil {
 			return err
 		}
@@ -64,5 +64,6 @@ func (h *hostExecutor) runPipeline(ctx context.Context, p *Pipeline) error {
 }
 
 func (h *hostExecutor) close() error {
-	return h.conn.Close()
+	h.conn.conn.Close()
+	return h.conn.close()
 }

@@ -13,7 +13,7 @@ func main() {
 	pw := os.Getenv("SSH_PASSWORD")
 	cfg, err := salo.InsecureHostConfig(pw)
 	fatalif(err)
-	hosts := salo.NewHostsFromSlice(cfg, "localhost")
+	hosts := salo.NewHostsFromSlice(cfg, "127.0.0.1")
 
 	p := salo.NewPipeline("ping").
 		AddTask("Ping", ping.Default())

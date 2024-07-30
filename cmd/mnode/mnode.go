@@ -12,7 +12,7 @@ var rootCmd = &cobra.Command{
 	Use:   "salom",
 	Short: "salo managed node server",
 	Run: func(cmd *cobra.Command, args []string) {
-		s := mnode.NewApiServer("/Users/lazyload/workspace/scratch/salo/salo.sock")
+		s := mnode.NewApiServer("/tmp/salo/server.sock")
 		s.Start()
 	},
 }
