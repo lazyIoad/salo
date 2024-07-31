@@ -1,5 +1,5 @@
 // Inspired heavily by github.com/johnsiilver/serveonssh
-package salo
+package cnode
 
 import (
 	"context"
@@ -16,13 +16,13 @@ func init() {
 	resolver.SetDefaultScheme("passthrough")
 }
 
-type sshProxiedGrpcConn struct {
+type SshProxiedGrpcConn struct {
 	proxy *sshProxy
-	conn  *grpc.ClientConn
+	*grpc.ClientConn
 }
 
-func newSshProxiedGrpcConn(h *Host) (*sshProxiedGrpcConn, error) {
-	proxy, err := newSshProxy(h)
+func NewSshProxiedGrpcConn(address string, port int, sshConfig *ssh.ClientConfig, socket string) (*SshProxiedGrpcConn, error) {
+	proxy, err := newSshProxy(address, port, sshConfig, socket)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create SSH proxy: %w", err)
 	}
@@ -36,19 +36,29 @@ func newSshProxiedGrpcConn(h *Host) (*sshProxiedGrpcConn, error) {
 		}),
 	}
 
-	conn, err := grpc.NewClient(h.Config.SocketPath, opts...)
+	conn, err := grpc.NewClient(socket, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gRPC client: %w", err)
 	}
 
-	return &sshProxiedGrpcConn{
+	return &SshProxiedGrpcConn{
 		proxy,
 		conn,
 	}, nil
 }
 
-func (s *sshProxiedGrpcConn) close() error {
-	return s.proxy.sshClient.Close()
+func (s *SshProxiedGrpcConn) Close() error {
+	err := s.ClientConn.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close gRPC connection: %w", err)
+	}
+
+	err = s.proxy.sshClient.Close()
+	if err != nil {
+		return fmt.Errorf("failed to close SSH connection: %w", err)
+	}
+
+	return nil
 }
 
 type dialer func(context.Context) (net.Conn, error)
@@ -58,15 +68,15 @@ type sshProxy struct {
 	dialer    dialer
 }
 
-func newSshProxy(h *Host) (*sshProxy, error) {
-	addr := fmt.Sprintf("%s:%d", h.Address, h.Port)
-	client, err := ssh.Dial("tcp", addr, h.Config.SshConfig)
+func newSshProxy(address string, port int, sshConfig *ssh.ClientConfig, socket string) (*sshProxy, error) {
+	addr := fmt.Sprintf("%s:%d", address, port)
+	client, err := ssh.Dial("tcp", addr, sshConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial SSH host: %w", err)
 	}
 
 	var dial dialer = func(ctx context.Context) (net.Conn, error) {
-		return client.DialContext(ctx, "unix", h.Config.SocketPath)
+		return client.DialContext(ctx, "unix", socket)
 	}
 
 	return &sshProxy{

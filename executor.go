@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"sync"
+
+	"github.com/lazyIoad/salo/internal/cnode"
 )
 
 func executePipeline(ctx context.Context, p *Pipeline, hosts []*Host) error {
@@ -33,11 +35,11 @@ func executePipeline(ctx context.Context, p *Pipeline, hosts []*Host) error {
 
 type hostExecutor struct {
 	host *Host
-	conn *sshProxiedGrpcConn
+	conn *cnode.SshProxiedGrpcConn
 }
 
 func newHostExecutor(h *Host) (*hostExecutor, error) {
-	conn, err := newSshProxiedGrpcConn(h)
+	conn, err := cnode.NewSshProxiedGrpcConn(h.Address, h.Port, h.Config.SshConfig, h.Config.SocketPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize connection: %w", err)
 	}
@@ -54,7 +56,7 @@ func (h *hostExecutor) runPipeline(ctx context.Context, p *Pipeline) error {
 
 	for i, t := range p.tasks {
 		fmt.Printf("[%s] TASK (%d/%d: %s) starting...\n", h.host.Address, i, len(p.tasks), t.name)
-		err := t.impl.Run(ctx, h.conn.conn)
+		err := t.impl.Run(ctx, h.conn)
 		if err != nil {
 			return err
 		}
@@ -64,6 +66,5 @@ func (h *hostExecutor) runPipeline(ctx context.Context, p *Pipeline) error {
 }
 
 func (h *hostExecutor) close() error {
-	h.conn.conn.Close()
-	return h.conn.close()
+	return h.conn.Close()
 }
